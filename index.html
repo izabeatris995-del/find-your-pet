@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Your Pet - Ribas do Rio Pardo</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --lost: #ef4444;
+            --found: #10b981;
+            --donation: #059669;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.25rem;
+            margin-bottom: 0.1rem;
+            font-weight: 800;
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        nav {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            padding: 10px 18px;
+            border-radius: 6px;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: background 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: #f1f5f9;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-lost { background-color: var(--lost); color: white; }
+        .btn-found { background-color: var(--found); color: white; }
+        .btn-donation { background-color: var(--donation); color: white; }
+
+        .btn-whatsapp {
+            background-color: #22c55e;
+            color: white;
+            width: 100%;
+            justify-content: center;
+            margin-top: 15px;
+            border-radius: 6px;
+        }
+
+        .form-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: none;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .form-card.active { display: block; }
+
+        .form-group { margin-bottom: 20px; }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .filter-section {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+
+        .filter-section select, .filter-section input {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .mural-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .pet-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .pet-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            background-color: #f1f5f9;
+        }
+
+        .pet-card-body {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-lost { background-color: var(--lost); }
+        .badge-found { background-color: var(--found); }
+
+        .pet-title {
+            font-size: 1.25rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .pet-desc {
+            font-size: 0.9rem;
+            color: #475569;
+            margin: 12px 0;
+            flex-grow: 1;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .btn-remove {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .btn-remove:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .guide-grid, .donation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .guide-card, .donation-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+
+        .pix-box {
+            background: #ecfdf5;
+            border: 2px dashed #059669;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+            color: #047857;
+            word-break: break-all;
+            text-align: center;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .empty-mural {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 50px;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px dashed var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🐾 Find Your Pet</h1>
+        <div class="header-subtitle">(Ache Seu Pet)</div>
+        <p>Mural de Alertas de Pets Perdidos e Encontrados - Ribas do Rio Pardo</p>
+    </header>
+
+    <nav>
+        <button class="nav-link active" onclick="showPage('mural')">📋 Mural Geral</button>
+        <button class="nav-link" onclick="showPage('doacao')">💚 Doação Financeira / Apoio</button>
+        <button class="nav-link" onclick="showPage('guia')">📖 Guia Completo de Cuidados</button>
+    </nav>
+
+    <div class="container">
+
+        <!-- MURAL -->
+        <div id="page-mural" class="page-section active">
+            <div class="actions-bar">
+                <button class="btn btn-lost" onclick="openForm('perdido')">🚨 Perdi meu Pet</button>
+                <button class="btn btn-found" onclick="openForm('encontrado')">🐾 Encontrei um Pet</button>
+                <button class="btn btn-donation" onclick="showPage('doacao')">💚 Apoiar o Projeto (Doar)</button>
+            </div>
+
+            <div id="formSection" class="form-card">
+                <h2 id="formTitle">Cadastrar Pet</h2>
+                <form id="petForm" onsubmit="savePet(event)">
+                    <input type="hidden" id="petType">
+
+                    <div class="form-group">
+                        <label for="petName">Nome do Pet (ou 'Desconhecido'):</label>
+                        <input type="text" id="petName" required placeholder="Ex: Rex, Mel ou Desconhecido">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="petBairro">Bairro em Ribas do Rio Pardo:</label>
+                        <input type="text" id="petBairro" required placeholder="Ex: Centro, São João, Parque Estoril">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="petPhone">Telefone / WhatsApp para contato (DDD + Número):</label>
+                        <input type="tel" id="petPhone" required placeholder="Ex: 67998160777">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="petImage">Foto do Pet:</label>
+                        <input type="file" id="petImage" accept="image/*" required onchange="previewImage(event)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="petDesc">Descrição / Observações:</label>
+                        <textarea id="petDesc" rows="3" placeholder="Ex: Porte médio, cor amarela, usa coleira..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-found" style="width: 100%; justify-content: center;">Publicar no Mural</button>
+                    <button type="button" class="btn" style="background:#e2e8f0; color:var(--text-main); width: 100%; justify-content: center; margin-top: 10px;" onclick="closeForm()">Cancelar</button>
+                </form>
+            </div>
+
+            <div class="filter-section">
+                <strong>🔍 Filtrar Mural:</strong>
+                <select id="filterType" onchange="renderMural()">
+                    <option value="todos">Todos os Anúncios</option>
+                    <option value="perdido">Apenas Perdidos</option>
+                    <option value="encontrado">Apenas Encontrados</option>
+                </select>
+
+                <input type="text" id="filterBairro" placeholder="Filtrar por bairro..." oninput="renderMural()" style="flex-grow: 1; max-width: 300px;">
+            </div>
+
+            <div id="muralGrid" class="mural-grid"></div>
+        </div>
+
+        <!-- DOAÇÃO -->
+        <div id="page-doacao" class="page-section">
+            <h2 style="margin-bottom: 20px; color: var(--text-main);">💚 Apoie o Projeto & Resgates</h2>
+            <div class="donation-grid">
+                <div class="donation-card">
+                    <h3>📱 Doação via PIX</h3>
+                    <p style="margin-top: 10px; color: var(--text-muted);">Ajude na compra de ração e cuidados veterinários.</p>
+                    <div class="pix-box">kellyalmeida9292828@gmail.com</div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Copie a chave acima e cole no aplicativo do seu banco.</p>
+                </div>
+                <div class="donation-card">
+                    <h3>📦 Doação de Suprimentos & Contato</h3>
+                    <p style="margin-top: 10px; color: var(--text-muted);">Entre em contato direto pelo e-mail ou WhatsApp para combinar entregas.</p>
+                    <p style="margin-top: 8px; font-weight: bold;">📧 kellyalmeida9292828@gmail.com</p>
+                    <a href="https://wa.me/5567998160777?text=Olá!%20Gostaria%20de%20fazer%20uma%20doação%20para%20o%20Find%20Your%20Pet." target="_blank" class="btn btn-whatsapp" style="margin-top: 15px;">💬 Falar no WhatsApp (67 99816-0777)</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- GUIA DE CUIDADOS -->
+        <div id="page-guia" class="page-section">
+            <h2 style="margin-bottom: 20px; color: var(--text-main);">📖 Guia Completo de Cuidados</h2>
+            <div class="guide-grid">
+                <div class="guide-card">
+                    <h3>🥗 Alimentação Saudável</h3>
+                    <p style="margin-top: 8px; color: var(--text-muted);">Ofereça ração adequada e água limpa. Nunca dê chocolate, cebola ou ossos cozidos.</p>
+                </div>
+                <div class="guide-card">
+                    <h3>💉 Vacinação e Vermifugação</h3>
+                    <p style="margin-top: 8px; color: var(--text-muted);">Mantenha as vacinas (V10, V4, Raiva) e vermífugos em dia com o veterinário.</p>
+                </div>
+                <div class="guide-card">
+                    <h3>🏡 Segurança contra Fugas</h3>
+                    <p style="margin-top: 8px; color: var(--text-muted);">Utilize coleiras com identificação e mantenha portões e janelas com telas seguras.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>Projeto Didático Find Your Pet • SENAI Ribas do Rio Pardo (2026)</p>
+        <p style="margin-top: 4px;">Desenvolvido por Izabela Beatris e Kelly (kellyalmeida9292828@gmail.com) | Orientador: Prof. Stepherson Fontoura</p>
+    </footer>
+
+    <script>
+        let currentBase64Image = '';
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+
+            const targetSection = document.getElementById('page-' + pageId);
+            if(targetSection) targetSection.classList.add('active');
+
+            const btnIndex = pageId === 'mural' ? 0 : pageId === 'doacao' ? 1 : 2;
+            const navButtons = document.querySelectorAll('.nav-link');
+            if(navButtons[btnIndex]) navButtons[btnIndex].classList.add('active');
+        }
+
+        function openForm(type) {
+            document.getElementById('petType').value = type;
+            document.getElementById('formTitle').innerText = type === 'perdido' ? '🚨 Cadastrar Pet Perdido' : '🐾 Cadastrar Pet Encontrado';
+            document.getElementById('formSection').classList.add('active');
+            window.scrollTo({ top: document.getElementById('formSection').offsetTop - 20, behavior: 'smooth' });
+        }
+
+        function closeForm() {
+            document.getElementById('formSection').classList.remove('active');
+            document.getElementById('petForm').reset();
+            currentBase64Image = '';
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) { currentBase64Image = e.target.result; };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function savePet(event) {
+            event.preventDefault();
+            const newPet = {
+                id: Date.now(),
+                type: document.getElementById('petType').value,
+                name: document.getElementById('petName').value,
+                bairro: document.getElementById('petBairro').value,
+                phone: document.getElementById('petPhone').value.replace(/\D/g, ''),
+                image: currentBase64Image || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=500&auto=format&fit=crop&q=60',
+                desc: document.getElementById('petDesc').value,
+                date: new Date().toLocaleDateString('pt-BR')
+            };
+
+            const pets = JSON.parse(localStorage.getItem('findYourPets') || '[]');
+            pets.unshift(newPet);
+            localStorage.setItem('findYourPets', JSON.stringify(pets));
+
+            closeForm();
+            renderMural();
+        }
+
+        function deletePet(id) {
+            if (confirm('Deseja remover este anúncio?')) {
+                let pets = JSON.parse(localStorage.getItem('findYourPets') || '[]');
+                pets = pets.filter(pet => pet.id !== id);
+                localStorage.setItem('findYourPets', JSON.stringify(pets));
+                renderMural();
+            }
+        }
+
+        function renderMural() {
+            const grid = document.getElementById('muralGrid');
+            const typeFilter = document.getElementById('filterType').value;
+            const bairroFilter = document.getElementById('filterBairro').value.toLowerCase();
+            const pets = JSON.parse(localStorage.getItem('findYourPets') || '[]');
+
+            const filteredPets = pets.filter(pet => {
+                const matchesType = typeFilter === 'todos' || pet.type === typeFilter;
+                const matchesBairro = pet.bairro.toLowerCase().includes(bairroFilter);
+                return matchesType && matchesBairro;
+            });
+
+            if (filteredPets.length === 0) {
+                grid.innerHTML = '<div class="empty-mural">Nenhum pet cadastrado para estes filtros.</div>';
+                return;
+            }
+
+            grid.innerHTML = filteredPets.map(pet => {
+                const badgeClass = pet.type === 'perdido' ? 'badge-lost' : 'badge-found';
+                const badgeText = pet.type === 'perdido' ? 'Perdido' : 'Encontrado';
+                const message = encodeURIComponent(`Olá! Vi o anúncio do pet "${pet.name}" no Find Your Pet e gostaria de falar sobre ele.`);
+                const whatsappUrl = `https://wa.me/55${pet.phone}?text=${message}`;
+
+                return `
+                    <div class="pet-card">
+                        <span class="badge ${badgeClass}">${badgeText}</span>
+                        <img src="${pet.image}" alt="${pet.name}">
+                        <div class="pet-card-body">
+                            <h3 class="pet-title">${pet.name}</h3>
+                            <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;">📍 Bairro: ${pet.bairro}</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">📅 Data: ${pet.date}</div>
+                            <p class="pet-desc">${pet.desc || 'Sem observações adicionais.'}</p>
+                            <a href="${whatsappUrl}" target="_blank" class="btn btn-whatsapp">💬 Falar no WhatsApp</a>
+                            <button class="btn-remove" onclick="deletePet(${pet.id})">Remover Anúncio</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.onload = renderMural;
+    </script>
+</body>
+</html>
